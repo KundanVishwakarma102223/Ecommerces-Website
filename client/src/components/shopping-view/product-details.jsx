@@ -110,7 +110,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         <div className="relative overflow-hidden rounded-lg">
           <img
             src={productDetails?.image}
-            alt={productDetails?.name}
+            alt={productDetails?.title}
             width={600}
             height={600}
             className="aspect-square w-full object-cover"
@@ -118,8 +118,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         </div>
         <div className="">
           <div>
-          <h3 className="font-extrabold">{cartItem?.name}</h3>
-
+            <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
             <p className="text-muted-foreground text-2xl mb-5 mt-4">
               {productDetails?.description}
             </p>
