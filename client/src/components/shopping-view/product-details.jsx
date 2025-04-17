@@ -13,11 +13,96 @@ import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
 import { addReview, getReviews } from "@/store/shop/review-slice";
 
-// ...imports remain the same
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
-  // ...state & redux logic remains the same
+  const [reviewMsg, setReviewMsg] = useState("");
+  const [rating, setRating] = useState(0);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.shopCart);
+  const { reviews } = useSelector((state) => state.shopReview);
 
-  // ...other functions unchanged
+  const { toast } = useToast();
+
+  function handleRatingChange(getRating) {
+    console.log(getRating, "getRating");
+
+    setRating(getRating);
+  }
+
+  function handleAddToCart(getCurrentProductId, getTotalStock) {
+    let getCartItems = cartItems.items || [];
+
+    if (getCartItems.length) {
+      const indexOfCurrentItem = getCartItems.findIndex(
+        (item) => item.productId === getCurrentProductId
+      );
+      if (indexOfCurrentItem > -1) {
+        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
+        if (getQuantity + 1 > getTotalStock) {
+          toast({
+            title: `Only ${getQuantity} quantity can be added for this item`,
+            variant: "destructive",
+          });
+
+          return;
+        }
+      }
+    }
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        productId: getCurrentProductId,
+        quantity: 1,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchCartItems(user?.id));
+        toast({
+          title: "Product is added to cart",
+        });
+      }
+    });
+  }
+
+  function handleDialogClose() {
+    setOpen(false);
+    dispatch(setProductDetails());
+    setRating(0);
+    setReviewMsg("");
+  }
+
+  function handleAddReview() {
+    dispatch(
+      addReview({
+        productId: productDetails?._id,
+        userId: user?.id,
+        userName: user?.userName,
+        reviewMessage: reviewMsg,
+        reviewValue: rating,
+      })
+    ).then((data) => {
+      if (data.payload.success) {
+        setRating(0);
+        setReviewMsg("");
+        dispatch(getReviews(productDetails?._id));
+        toast({
+          title: "Review added successfully!",
+        });
+      }
+    });
+  }
+
+  useEffect(() => {
+    if (productDetails !== null) dispatch(getReviews(productDetails?._id));
+  }, [productDetails]);
+
+  console.log(reviews, "reviews");
+
+  const averageReview =
+    reviews && reviews.length > 0
+      ? reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
+        reviews.length
+      : 0;
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -25,15 +110,15 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         <div className="relative overflow-hidden rounded-lg">
           <img
             src={productDetails?.image}
-            alt={productDetails?.name}
+            alt={productDetails?.title}
             width={600}
             height={600}
             className="aspect-square w-full object-cover"
           />
         </div>
-        <div>
+        <div className="">
           <div>
-            <h1 className="text-3xl font-extrabold">{productDetails?.name}</h1>
+            <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
             <p className="text-muted-foreground text-2xl mb-5 mt-4">
               {productDetails?.description}
             </p>
@@ -46,11 +131,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             >
               ${productDetails?.price}
             </p>
-            {productDetails?.salePrice > 0 && (
+            {productDetails?.salePrice > 0 ? (
               <p className="text-2xl font-bold text-muted-foreground">
                 ${productDetails?.salePrice}
               </p>
-            )}
+            ) : null}
           </div>
           <div className="flex items-center gap-2 mt-2">
             <div className="flex items-center gap-0.5">
@@ -137,7 +222,3 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 }
 
 export default ProductDetailsDialog;
-
-
-
-
