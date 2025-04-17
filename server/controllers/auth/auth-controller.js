@@ -80,7 +80,7 @@ const loginUser = async (req, res) => {
     // });
 
   res.status(200).json({
-    sucess : true,
+    success : true,
     message : "Logged in successfully",
     token, 
       user: {
