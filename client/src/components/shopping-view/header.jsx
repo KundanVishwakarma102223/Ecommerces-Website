@@ -75,7 +75,7 @@ function HeaderRightContent() {
     // dispatch(logoutUser());
     dispatch(resetTokenAndCredentials())
     sessionStorage.clear();
-    nevugate('/auth/login')
+    nevigate('/auth/login')
   }
 
   useEffect(() => {
