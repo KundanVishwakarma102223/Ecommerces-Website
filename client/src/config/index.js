@@ -138,6 +138,12 @@ export const shoppingViewHeaderMenuItems = [
     path: "/shop/listing",
   },
   {
+    id: "external-link",
+    label: "Design CLoth", // <-- whatever name you want
+    path: "https://pixelthreads-emgv.onrender.com", // <-- replace this with the external URL
+    external: true, // custom flag to identify external links
+  },
+  {
     id: "search",
     label: "Search",
     path: "/shop/search",
